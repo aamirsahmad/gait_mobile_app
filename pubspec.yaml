@@ -1,5 +1,5 @@
 name: gait_mobile_app
-description: A new Flutter project.
+description: An app to collect and stream gait data on for Android and iOS smartphones.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -24,6 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  provider: ^3.0.0
+  settings_ui: ^0.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
