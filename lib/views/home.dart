@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gait_mobile_app/views/history.dart';
 import 'package:gait_mobile_app/views/logs.dart';
 import 'package:gait_mobile_app/views/settings.dart';
+import 'package:gait_mobile_app/util.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -14,8 +15,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isRecording = false;
-
   int _selectedIndex = 0;
+  int referenceTime = 0;
+  int durationRecorded = 0;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -23,6 +25,8 @@ class _HomeState extends State<Home> {
     });
   }
 
+  
+  
   @override
   Widget build(BuildContext context) {
     final _views = [
@@ -36,16 +40,19 @@ class _HomeState extends State<Home> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    
                     const ListTile(
                       title: Text('Last Data Collected'),
                     ),
+                    
                     const ListTile(
                       title: Text('Username'),
-                      trailing: Text('Lorem ipsum'),
+                      trailing: Text('Aamir Ahmad'),
                     ),
-                    const ListTile(
-                      title: Text('Duration'),
-                      trailing: Text('5 minutes and 10 seconds'),
+                    
+                    ListTile(
+                      title: Text('Duration Recorded'),
+                      trailing: Text(durationRecorded.toString() + " seconds"),
                     ),
                     ButtonBar(
                       children: <Widget>[
@@ -81,6 +88,19 @@ class _HomeState extends State<Home> {
                 onChanged: (value) {
                   setState(() {
                     isRecording = !isRecording;
+                    
+                    if(!isRecording)
+                    {
+                      // record time in seconds since that last 'local epoch' where the
+                      // the this 'local epoch' is the reference time from when recording
+                      // started
+                      durationRecorded = durationRecorded + (getReferenceTime() - referenceTime);
+                    } 
+                    else 
+                    {
+                      referenceTime = getReferenceTime();
+                    }
+
                   });
                 },
               ),
