@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
                     
                     ListTile(
                       title: Text('Duration Recorded'),
-                      trailing: Text(durationRecorded.toString() + " seconds"),
+                      trailing: Text("${durationRecorded.toString()} seconds"),
                     ),
                     ButtonBar(
                       children: <Widget>[
