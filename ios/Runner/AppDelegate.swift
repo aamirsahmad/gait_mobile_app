@@ -49,10 +49,19 @@ import Flutter
   }
 }
 
-// Add setup for different implementations???
 
-public class AccManager {
+protocol persistanceRecorder {
+  
+  func storeData(data: String) -> Int
+
+}
+
+public class AccManager : persistanceRecorder {
       
+      func storeData(data: String) -> Int {
+        return 0
+      }
+
       public func processAccData(accResults rawResults: FlutterError) -> FlutterError{
             // 1. Process Acc Results
             return rawResults
