@@ -1,7 +1,6 @@
 import UIKit
 import Flutter
 
-
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
 
@@ -49,25 +48,3 @@ import Flutter
   }
 }
 
-
-protocol persistanceRecorder {
-  
-  func storeData(data: String) -> Int
-
-}
-
-public class AccManager : persistanceRecorder {
-      
-      func storeData(data: String) -> Int {
-        return 0
-      }
-
-      public func processAccData(accResults rawResults: FlutterError) -> FlutterError{
-            // 1. Process Acc Results
-            return rawResults
-      }
-
-      init() {
-
-      }
-}
