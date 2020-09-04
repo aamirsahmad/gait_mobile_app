@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
   int timeDurationRecorded = 0;
   
 
-  var iOSChannel = const MethodChannel("flutter.prod/accelerometerData");
+  var iOSChannel = const MethodChannel("flutter.dev/accelerometerData");
 
   String _displayedMessage = "";
  

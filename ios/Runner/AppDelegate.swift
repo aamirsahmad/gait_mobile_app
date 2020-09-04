@@ -1,6 +1,7 @@
 import UIKit
 import Flutter
 
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
 
@@ -30,16 +31,19 @@ import Flutter
 
     accDataChannel.setMethodCallHandler({
       (call: FlutterMethodCall, result: FlutterResult) -> Void in
-        if (call.method == "getAccelerometerData") {
+        if (call.method != "getAccelerometerData") {
           return
         }
         // 1. Run the logic to access the raw results returned from accessing the sensors on
         // the device (currently the value type assigned to raw results is just a placeholder)
+        
+         //print(self.accManager.getAccData())
+        
         let rawResults = FlutterError(code: "UNAVAILABLE",
-                              message: "accelerometer info unavailable",
+                              message: "Accelerometer Info Unavailable",
                               details: nil)
-
-         // 2. Manage and process all the raw results that have now been returned
+        
+         // 2. Process all the raw results that have now been returned
         result(self.accManager.processAccData(accResults: rawResults))
     })
 
