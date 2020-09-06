@@ -1,18 +1,22 @@
 import UIKit
 import Flutter
-
+import CoreMotion
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
 
-  // These are the references for managers handling how to retreive the results required by a client
+  // These are the references for managers and resources that handle how to retreive the results required by a client
   
-  // 1. Accelerometer manager which processes raw accelerometer results retreived from a device
-  let accManager = AccManager()
+  // 1. Library to retrieve raw acceleromter results from the device
+  let motionManager = CMMotionManager();
   
-  // 2.
+  // 2. processor to convert which processes raw accelerometer results retreived from a device
+  let processor = accProcessor()
+  
+  
   // ....
-
+  
+  var accReadings = [String]()
 
   override func application (
     _ application: UIApplication,
@@ -31,21 +35,35 @@ import Flutter
 
     accDataChannel.setMethodCallHandler({
       (call: FlutterMethodCall, result: FlutterResult) -> Void in
-        if (call.method != "getAccelerometerData") {
-          return
-        }
-        
         // 1. Run the logic to access the raw results returned from accessing the sensors on
         // the device (currently the value type assigned to raw results is just a placeholder)
+        switch call.method {
+          case "accessAccelerometerData" :
+            self.motionManager.accelerometerUpdateInterval = 1.0
+            self.motionManager.startAccelerometerUpdates(to: OperationQueue.current!) { (data, error) in
+              // For now the logic is just to print dummy the accelerometer data
+                if self.motionManager.isAccelerometerAvailable {
+                    if let data = self.motionManager.accelerometerData 
+                    {
+                        let x = data.acceleration.x
+                        let y = data.acceleration.y
+                        let z = data.acceleration.z
+                        
+                        self.accReadings.append(self.processor.processAccData(x:String(x), y:String(y), z:String(z)))
+                        print(self.accReadings.count)
+                    // Use the accelerometer data in your app.
+                    }
+              }     
+            }
+            result(String(0))
+          case "storeAccelerometerData" :
+            self.motionManager.stopAccelerometerUpdates()
+            result("This device sampled " + String(self.accReadings.count) + " records.")
+          default:
+            self.motionManager.stopAccelerometerUpdates()
+            result("Data collection failed")
+        }
         
-        
-        let rawResults = FlutterError(code: "UNAVAILABLE",
-                              message: "Accelerometer Info Unavailable",
-                              details: nil)
-        
-         // 2. Process all the raw results that have now been returned
-         // (currently implementation returns a placeholder)
-        result(rawResults)
     })
 
     GeneratedPluginRegistrant.register(with: self)

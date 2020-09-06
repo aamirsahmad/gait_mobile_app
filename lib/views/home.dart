@@ -34,7 +34,7 @@ class _HomeState extends State<Home> {
     String result = "";
     // 1. commit request to retreive accelerometer information from the IOS platform
     try {
-       result = await iOSChannel.invokeMethod("getAccelerometerData");
+       result = await iOSChannel.invokeMethod("storeAccelerometerData");
     } on PlatformException catch (e) {
         result = e.message;
       // if there is an error, specify the appropriate error code
@@ -99,7 +99,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-            SizedBox(height: 180),
+            SizedBox(height: 30),
             Text(
               isRecording ? 'Collecting data ...': _displayedMessage,
               style: Theme.of(context).textTheme.headline5,
@@ -119,12 +119,14 @@ class _HomeState extends State<Home> {
                       // the this 'local epoch' is the reference time from when recording
                       // started
                       timeDurationRecorded = timeDurationRecorded + (getReferenceTime() - referenceTime);
+                      _storeAccelerometerInformation();
                     } 
                     else 
                     {
                       referenceTime = getReferenceTime();
+                      iOSChannel.invokeMethod("accessAccelerometerData");
                     }
-                    _storeAccelerometerInformation();
+                    
                   });
                 },
               ),
