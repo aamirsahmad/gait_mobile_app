@@ -119,11 +119,14 @@ class _HomeState extends State<Home> {
                       // the this 'local epoch' is the reference time from when recording
                       // started
                       timeDurationRecorded = timeDurationRecorded + (getReferenceTime() - referenceTime);
+                      // store and end the access to the acceleromter device
                       _storeAccelerometerInformation();
                     } 
                     else 
                     {
+                      // write to the referenceTime variable
                       referenceTime = getReferenceTime();
+                      // write an access event to the data access channel
                       iOSChannel.invokeMethod("accessAccelerometerData");
                     }
                     

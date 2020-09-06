@@ -35,32 +35,43 @@ import CoreMotion
 
     accDataChannel.setMethodCallHandler({
       (call: FlutterMethodCall, result: FlutterResult) -> Void in
-        // 1. Run the logic to access the raw results returned from accessing the sensors on
-        // the device (currently the value type assigned to raw results is just a placeholder)
         switch call.method {
           case "accessAccelerometerData" :
+            // 1. Check to see if the accelerometer device is availible for access
+            if !self.motionManager.isAccelerometerActive {
+                print("OPERATION-ERROR -1: Unable to access acceleromter")
+                result(FlutterError(code: "UNAVAILABLE",
+                    message: "accelerometer info unavailable",
+                    details: nil))
+            }
+            
+            // 2. Retreive, process and store acceleromter data from the active device
             self.motionManager.accelerometerUpdateInterval = 1.0
             self.motionManager.startAccelerometerUpdates(to: OperationQueue.current!) { (data, error) in
-              // For now the logic is just to print dummy the accelerometer data
-                if self.motionManager.isAccelerometerAvailable {
-                    if let data = self.motionManager.accelerometerData 
-                    {
-                        let x = data.acceleration.x
-                        let y = data.acceleration.y
-                        let z = data.acceleration.z
-                        
-                        self.accReadings.append(self.processor.processAccData(x:String(x), y:String(y), z:String(z)))
-                        print(self.accReadings.count)
-                    // Use the accelerometer data in your app.
-                    }
-              }     
+                // 1. Process and store availible acc data
+                if let data = self.motionManager.accelerometerData
+                {
+                    let x = data.acceleration.x
+                    let y = data.acceleration.y
+                    let z = data.acceleration.z
+                    
+                    self.accReadings.append(self.processor.processAccData(x:String(x), y:String(y), z:String(z)))
+                }
+                 
             }
+            
+            // 3. Return result indicating success case
             result(String(0))
+            
           case "storeAccelerometerData" :
+            // 1. Stop retreiving updates from the acceleromter device
             self.motionManager.stopAccelerometerUpdates()
+            // 2. Return a message back to the user
             result("This device sampled " + String(self.accReadings.count) + " records.")
           default:
+            // 1. Stop retreiving updates from the acceleromter device
             self.motionManager.stopAccelerometerUpdates()
+            // 2. Indicate that the message sent over the channel was unable to be read
             result("Data collection failed")
         }
         
