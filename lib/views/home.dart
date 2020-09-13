@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gait_mobile_app/views/history.dart';
 import 'package:gait_mobile_app/views/logs.dart';
 import 'package:gait_mobile_app/views/settings.dart';
+
+
 import 'package:gait_mobile_app/util.dart';
+import 'package:flutter/services.dart';
+
+import 'dart:io' show Platform;
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -16,16 +21,40 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool isRecording = false;
   int _selectedIndex = 0;
+
+  // used to dynamically track recorded time
   int referenceTime = 0;
-  int durationRecorded = 0;
+  int timeDurationRecorded = 0;
+  
+
+  var iOSChannel = const MethodChannel("flutter.dev/accelerometerData");
+
+  String _displayedMessage = "";
+ 
+  Future<void> _storeAccelerometerInformation() async {
+    String result = "";
+    // 1. commit request to retreive accelerometer information from the IOS platform
+    try {
+      if (Platform.isAndroid) {
+          // Android-specific code
+      } else if (Platform.isIOS) {
+          result = await iOSChannel.invokeMethod("storeAccelerometerData");
+      }
+    } on PlatformException catch (e) {
+        result = e.message;
+      // if there is an error, specify the appropriate error code
+    }
+    // 2. update the displayMessage based on the return from the IOS platform
+    setState(() {
+      _displayedMessage = result.toString();
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
-  
   
   @override
   Widget build(BuildContext context) {
@@ -52,12 +81,12 @@ class _HomeState extends State<Home> {
                     
                     ListTile(
                       title: Text('Duration Recorded'),
-                      trailing: Text("${durationRecorded.toString()} seconds"),
+                      trailing: Text("${timeDurationRecorded.toString()} seconds"),
                     ),
                     ButtonBar(
                       children: <Widget>[
                         FlatButton(
-                          child: const Text('Share'),
+                          child: Text('Share'),
                           onPressed: () {},
                         ),
                         FlatButton(
@@ -75,9 +104,9 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-            SizedBox(height: 180),
+            SizedBox(height: 30),
             Text(
-              isRecording ? 'Collecting data ...' : '',
+              isRecording ? 'Collecting data ...': _displayedMessage,
               style: Theme.of(context).textTheme.headline5,
             ),
             SizedBox(height: 20),
@@ -94,13 +123,18 @@ class _HomeState extends State<Home> {
                       // record time in seconds since that last 'local epoch' where the
                       // the this 'local epoch' is the reference time from when recording
                       // started
-                      durationRecorded = durationRecorded + (getReferenceTime() - referenceTime);
+                      timeDurationRecorded = timeDurationRecorded + (getReferenceTime() - referenceTime);
+                      // store and end the access to the acceleromter device
+                      _storeAccelerometerInformation();
                     } 
                     else 
                     {
+                      // write to the referenceTime variable
                       referenceTime = getReferenceTime();
+                      // write an access event to the data access channel
+                      iOSChannel.invokeMethod("accessAccelerometerData");
                     }
-
+                    
                   });
                 },
               ),
