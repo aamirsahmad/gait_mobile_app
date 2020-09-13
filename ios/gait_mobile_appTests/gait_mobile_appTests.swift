@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Runner
 
 class gait_mobile_appTests: XCTestCase {
 
@@ -27,6 +28,13 @@ class gait_mobile_appTests: XCTestCase {
         measure {
             // Put the code you want to measure the time of here.
         }
+    }
+    
+    func testAccProcessor() throws {
+        // 1. given
+         let guess = 5
+         var guess2 =
+         XCTAssertEqual(guess, 5, "Score computed from guess is wrong")
     }
     
     

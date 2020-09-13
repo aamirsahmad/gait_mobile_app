@@ -7,6 +7,7 @@ import 'package:gait_mobile_app/views/settings.dart';
 import 'package:gait_mobile_app/util.dart';
 import 'package:flutter/services.dart';
 
+import 'dart:io' show Platform;
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -34,7 +35,11 @@ class _HomeState extends State<Home> {
     String result = "";
     // 1. commit request to retreive accelerometer information from the IOS platform
     try {
-       result = await iOSChannel.invokeMethod("storeAccelerometerData");
+      if (Platform.isAndroid) {
+          // Android-specific code
+      } else if (Platform.isIOS) {
+          result = await iOSChannel.invokeMethod("storeAccelerometerData");
+      }
     } on PlatformException catch (e) {
         result = e.message;
       // if there is an error, specify the appropriate error code
