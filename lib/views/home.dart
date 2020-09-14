@@ -3,7 +3,6 @@ import 'package:gait_mobile_app/views/history.dart';
 import 'package:gait_mobile_app/views/logs.dart';
 import 'package:gait_mobile_app/views/settings.dart';
 
-
 import 'package:gait_mobile_app/util.dart';
 import 'package:flutter/services.dart';
 
@@ -25,23 +24,22 @@ class _HomeState extends State<Home> {
   // used to dynamically track recorded time
   int referenceTime = 0;
   int timeDurationRecorded = 0;
-  
 
   var iOSChannel = const MethodChannel("flutter.dev/accelerometerData");
 
   String _displayedMessage = "";
- 
+
   Future<void> _storeAccelerometerInformation() async {
     String result = "";
     // 1. commit request to retreive accelerometer information from the IOS platform
     try {
       if (Platform.isAndroid) {
-          // Android-specific code
+        // Android-specific code
       } else if (Platform.isIOS) {
-          result = await iOSChannel.invokeMethod("storeAccelerometerData");
+        result = await iOSChannel.invokeMethod("storeAccelerometerData");
       }
     } on PlatformException catch (e) {
-        result = e.message;
+      result = e.message;
       // if there is an error, specify the appropriate error code
     }
     // 2. update the displayMessage based on the return from the IOS platform
@@ -55,7 +53,7 @@ class _HomeState extends State<Home> {
       _selectedIndex = index;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final _views = [
@@ -69,19 +67,17 @@ class _HomeState extends State<Home> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    
                     const ListTile(
                       title: Text('Last Data Collected'),
                     ),
-                    
                     const ListTile(
                       title: Text('Username'),
                       trailing: Text('Aamir Ahmad'),
                     ),
-                    
                     ListTile(
                       title: Text('Duration Recorded'),
-                      trailing: Text("${timeDurationRecorded.toString()} seconds"),
+                      trailing:
+                          Text("${timeDurationRecorded.toString()} seconds"),
                     ),
                     ButtonBar(
                       children: <Widget>[
@@ -106,7 +102,7 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 30),
             Text(
-              isRecording ? 'Collecting data ...': _displayedMessage,
+              isRecording ? 'Collecting data ...' : _displayedMessage,
               style: Theme.of(context).textTheme.headline5,
             ),
             SizedBox(height: 20),
@@ -117,24 +113,40 @@ class _HomeState extends State<Home> {
                 onChanged: (value) {
                   setState(() {
                     isRecording = !isRecording;
-                    
-                    if(!isRecording)
-                    {
+
+                    if (!isRecording) {
                       // record time in seconds since that last 'local epoch' where the
                       // the this 'local epoch' is the reference time from when recording
                       // started
-                      timeDurationRecorded = timeDurationRecorded + (getReferenceTime() - referenceTime);
+                      timeDurationRecorded = timeDurationRecorded +
+                          (getReferenceTime() - referenceTime);
                       // store and end the access to the acceleromter device
                       _storeAccelerometerInformation();
-                    } 
-                    else 
-                    {
+
+                      if (Platform.isAndroid) {
+                        var androidMethodChannel = MethodChannel(
+                            "com.example.gait_mobile_app.sensor");
+                        Future result =
+                            androidMethodChannel.invokeMethod("stopService");
+                        result.then(
+                            (value) => debugPrint("sensor service stopped"));
+                      }
+                    } else {
                       // write to the referenceTime variable
                       referenceTime = getReferenceTime();
                       // write an access event to the data access channel
-                      iOSChannel.invokeMethod("accessAccelerometerData");
+//                      iOSChannel.invokeMethod("accessAccelerometerData");
+
+                      if (Platform.isAndroid) {
+                        // Android-specific code
+                        var androidMethodChannel = MethodChannel(
+                            "com.example.gait_mobile_app.sensor");
+                        Future result =
+                            androidMethodChannel.invokeMethod("startService");
+                        result.then(
+                            (value) => debugPrint("sensor service started"));
+                      }
                     }
-                    
                   });
                 },
               ),
